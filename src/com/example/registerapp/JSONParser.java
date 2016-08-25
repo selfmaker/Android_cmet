@@ -23,16 +23,16 @@ import android.util.Log;
 public class JSONParser {
 
     static InputStream is = null;   
-    static JSONObject jObj = null;   
+    public JSONObject jObj = null;   
     static String json = "";   
     // constructor   
     public JSONParser() {   
     }     
-    public JSONObject makeHttpRequest(String url, String method,   
+    public String makeHttpRequest(String url, String method,   
     List<NameValuePair> params) {   
         // Making HTTP request   
         try {   
-            //Ê¹ÓÃPOSTÇëÇó 
+            //Ê¹ï¿½ï¿½POSTï¿½ï¿½ï¿½ï¿½ 
             DefaultHttpClient httpClient = new DefaultHttpClient();   
             HttpPost httpPost = new HttpPost(url);   
             httpPost.setEntity(new UrlEncodedFormEntity(params,HTTP.UTF_8));   
@@ -60,14 +60,14 @@ public class JSONParser {
             Log.e("Buffer Error", "Error converting result " + e.toString());   
             Log.d("json", json.toString());   
         }   
-            //×ª±äÎªJsonÀàÐÍ   
-        try {   
-            jObj = new JSONObject(json);   
-        } catch (JSONException e) {   
-            Log.e("JSON Parser", "Error parsing data " + e.toString()); 
-        }   
-            // return JSON String   
-            return jObj;   
+            //×ªï¿½ï¿½ÎªJsonï¿½ï¿½ï¿½ï¿½   
+//        try {   
+//            jObj = new JSONObject(json);   
+//        } catch (JSONException e) {   
+//            Log.e("JSON Parser", "Error parsing data " + e.toString()); 
+//        }   
+             return json;   
+//            return jObj;   
     }   
     
 }

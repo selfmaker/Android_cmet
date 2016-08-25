@@ -56,11 +56,11 @@ public class MainActivity extends Activity {
             public void onClick(View arg0) {
                 
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
-                //»ñÈ¡ÊäÈë¿òÖĞµÄÄÚÈİ
+                //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½ï¿½ï¿½
                 username = etUsername.getText().toString();
                 password = etPassword.getText().toString();
   
-                //Ìæ»»¼üÖµ¶Ô£¬ÕâÀïµÄ¼ü±ØĞëºÍ½Ó¿ÚÖĞpost´«µİµÄ¼üÒ»ÖÂ
+                //ï¿½æ»»ï¿½ï¿½Öµï¿½Ô£ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Í½Ó¿ï¿½ï¿½ï¿½postï¿½ï¿½ï¿½İµÄ¼ï¿½Ò»ï¿½ï¿½
 //                params.add(new BasicNameValuePair("name", a));
                 params.add(new BasicNameValuePair("username", username));
                 params.add(new BasicNameValuePair("password", password));
@@ -69,14 +69,20 @@ public class MainActivity extends Activity {
                 JSONParser jsonParser = new JSONParser();
                 
                 try{   
-                    JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
+//                    JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
+                	String jsonstring = jsonParser.makeHttpRequest(url,"POST", params);
+                    JSONObject json = new JSONObject(jsonstring);
+                    
+                    
                     Log.i("main",json.toString());
                     if(json.getString("responseCode").equals("success")){
                   	  
-                  	Toast.makeText(MainActivity.this,"µÇÂ¼³É¹¦!",Toast.LENGTH_SHORT).show();
-        				startActivity(new Intent(MainActivity.this, UserAreaActivity.class));
+                  	Toast.makeText(MainActivity.this,"ç™»é™†æˆåŠŸï¼",Toast.LENGTH_SHORT).show();
+        				startActivity(new Intent(MainActivity.this, StartActivity.class));
         				Log.i("main","startActivity");
         			
+                    }else{
+                    	Toast.makeText(MainActivity.this,"ç™»é™†å¤±è´¥ï¼è¯·é‡æ–°è¾“å…¥",Toast.LENGTH_SHORT).show();
                     }
                   
                 }catch(Exception e){   

@@ -22,7 +22,7 @@ public class RegisterActivity extends Activity {
 
 	
 	
-	//ÉùÃ÷½Ó¿ÚµØÖ·
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿Úµï¿½Ö·
 //  private String url = "http://192.168.1.100/project01/register.php";
   private String url = "http://202.38.70.138/cmetTest/doUserAction.php?act=addUser";
   
@@ -53,12 +53,12 @@ public class RegisterActivity extends Activity {
           public void onClick(View arg0) {
               
               List<NameValuePair> params = new ArrayList<NameValuePair>();
-              //»ñÈ¡ÊäÈë¿òÖĞµÄÄÚÈİ
+              //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½ï¿½ï¿½
               username = et1.getText().toString();
               password = et2.getText().toString();
               email = et3.getText().toString();
               
-              //Ìæ»»¼üÖµ¶Ô£¬ÕâÀïµÄ¼ü±ØĞëºÍ½Ó¿ÚÖĞpost´«µİµÄ¼üÒ»ÖÂ
+              //ï¿½æ»»ï¿½ï¿½Öµï¿½Ô£ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Í½Ó¿ï¿½ï¿½ï¿½postï¿½ï¿½ï¿½İµÄ¼ï¿½Ò»ï¿½ï¿½
 //              params.add(new BasicNameValuePair("name", a));
               params.add(new BasicNameValuePair("username", username));
               params.add(new BasicNameValuePair("password", password));
@@ -67,11 +67,13 @@ public class RegisterActivity extends Activity {
               JSONParser jsonParser = new JSONParser();
               
               try{   
-                  JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
+//                  JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
+                  String jsonstring = jsonParser.makeHttpRequest(url,"POST", params);
+                  JSONObject json = new JSONObject(jsonstring);
                   Log.i("main",json.toString());
                   if(json.getString("responseCode").equals("success")){
                 	  
-                	Toast.makeText(RegisterActivity.this,"×¢²á³É¹¦£¡ÇëµÇÂ¼",Toast.LENGTH_SHORT).show();
+                	Toast.makeText(RegisterActivity.this,"æ³¨å†ŒæˆåŠŸï¼",Toast.LENGTH_SHORT).show();
       				startActivity(new Intent(RegisterActivity.this, MainActivity.class));
       				Log.i("main","startActivity");
       			
@@ -88,7 +90,7 @@ public class RegisterActivity extends Activity {
           }
       });
       
-      //ÏÂÃæµÄ´úÂëÊÇ±ØĞë¼ÓÉÏµÄ£¬¾ßÌåµÄÒâÒå»¹ĞèÒª´ó¼ÒÈ¥Ì½Ë÷°É£¬ÕâÀï²»ÊÇÖ÷Òª½²µÄ
+      //ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½Ç±ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÄ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å»¹ï¿½ï¿½Òªï¿½ï¿½ï¿½È¥Ì½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï²»ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
       
       StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()    
       .detectDiskReads()    
