@@ -3,6 +3,7 @@ package com.example.registerapp;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -265,59 +266,83 @@ public class AnalogyExaminationActivity extends Activity {
 		 JSONArray jsonlist=new JSONArray();
 		 try {
 			jsonlist = json2.getJSONArray("json");
+//			for(int i=0;i<jsonlist.length();i++){
+//				JSONObject jsonObject = jsonlist.getJSONObject(i);
+//				ConstantData.answerId[i]=Integer.toString(jsonObject.getInt("id"));
+//				ConstantData.answerName[i]=jsonObject.getString("question");
+//				ConstantData.answerOptionA[i]=jsonObject.getString("item1");
+//				ConstantData.answerOptionB[i]=jsonObject.getString("item2");
+//				ConstantData.answerOptionC[i]=jsonObject.getString("item3");
+//				ConstantData.answerOptionD[i]=jsonObject.getString("item4");
+//			}
 			for(int i=0;i<jsonlist.length();i++){
 				JSONObject jsonObject = jsonlist.getJSONObject(i);
-				ConstantData.answerId[i]=Integer.toString(jsonObject.getInt("id"));
-				ConstantData.answerName[i]=jsonObject.getString("question");
-				ConstantData.answerOptionA[i]=jsonObject.getString("item1");
-				ConstantData.answerOptionB[i]=jsonObject.getString("item2");
-				ConstantData.answerOptionC[i]=jsonObject.getString("item3");
-				ConstantData.answerOptionD[i]=jsonObject.getString("item4");
+				
+				//判断题库里是否有相同题目，不是相同题目才添加
+				if(!ConstantData.answerName.contains(jsonObject.getString("question"))){
+					ConstantData.answerId.add(Integer.toString(jsonObject.getInt("id")));
+					ConstantData.answerName.add(jsonObject.getString("question"));
+					ConstantData.answerOptionA.add(jsonObject.getString("item1"));
+					ConstantData.answerOptionB.add(jsonObject.getString("item2"));
+					ConstantData.answerOptionC.add(jsonObject.getString("item3"));
+					ConstantData.answerOptionD.add(jsonObject.getString("item4"));
+				}
+				
 			}
 		} catch (JSONException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		 
-//         Log.i("main",json.toString());
-//         try {
-//        	Log.i("main",json.getString("question"));
-//        	ConstantData.answerId[0]=Integer.toString(json.getInt("id"));
-//			ConstantData.answerName[0]=json.getString("question");
-//			ConstantData.answerOptionA[0]=json.getString("item1");
-//			ConstantData.answerOptionB[0]=json.getString("item2");
-//			ConstantData.answerOptionC[0]=json.getString("item3");
-//			ConstantData.answerOptionD[0]=json.getString("item4");
-//					
-//		} catch (JSONException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-             
-           	  
-                    
-        
+		  
          
-		for (int i = 0; i < ConstantData.answerName.length; i++) {
-			AnSwerInfo info = new AnSwerInfo();
-			info.setQuestionId(ConstantData.answerId[i]);// 试题主键
-			info.setQuestionName(ConstantData.answerName[i]);// 试题题目
-			info.setQuestionType(ConstantData.answerType[i]);// 试题类型0单选1多选
-			info.setQuestionFor("0");// （0模拟试题，1竞赛试题）
-			info.setAnalysis(ConstantData.answerAnalysis[i]);// 试题分析
-			info.setCorrectAnswer(ConstantData.answerCorrect[i]);// 正确答案
-			info.setOptionA(ConstantData.answerOptionA[i]);// 试题选项A
-			info.setOptionB(ConstantData.answerOptionB[i]);// 试题选项B
-			info.setOptionC(ConstantData.answerOptionC[i]);// 试题选项C
-			info.setOptionD(ConstantData.answerOptionD[i]);// 试题选项D
-			info.setOptionE(ConstantData.answerOptionE[i]);// 试题选项E
-			info.setScore(ConstantData.answerScore[i]);// 分值
-			info.setOption_type("0");
-			dataItems.add(info);
-		}
+//		for (int i = 0; i < ConstantData.answerName.length; i++) {
+//			AnSwerInfo info = new AnSwerInfo();
+//			info.setQuestionId(ConstantData.answerId[i]);// 试题主键
+//			info.setQuestionName(ConstantData.answerName[i]);// 试题题目
+//			info.setQuestionType(ConstantData.answerType[i]);// 试题类型0单选1多选
+//			info.setQuestionFor("0");// （0模拟试题，1竞赛试题）
+//			info.setAnalysis(ConstantData.answerAnalysis[i]);// 试题分析
+//			info.setCorrectAnswer(ConstantData.answerCorrect[i]);// 正确答案
+//			info.setOptionA(ConstantData.answerOptionA[i]);// 试题选项A
+//			info.setOptionB(ConstantData.answerOptionB[i]);// 试题选项B
+//			info.setOptionC(ConstantData.answerOptionC[i]);// 试题选项C
+//			info.setOptionD(ConstantData.answerOptionD[i]);// 试题选项D
+//			info.setOptionE(ConstantData.answerOptionE[i]);// 试题选项E
+//			info.setScore(ConstantData.answerScore[i]);// 分值
+//			info.setOption_type("0");
+//			dataItems.add(info);
+//		}
+		 
+		 Iterator<String> iter1 = ConstantData.answerId.iterator();
+		 Iterator<String> iter2 = ConstantData.answerName.iterator();
+		 Iterator<String> iter3 = ConstantData.answerOptionA.iterator();
+		 Iterator<String> iter4 = ConstantData.answerOptionB.iterator();
+		 Iterator<String> iter5 = ConstantData.answerOptionC.iterator();
+		 Iterator<String> iter6 = ConstantData.answerOptionD.iterator();
+		 int i = 0;
+		 while(iter1.hasNext()&&iter2.hasNext()&&iter4.hasNext()&&iter4.hasNext()&&iter5.hasNext()&&iter6.hasNext()){  
+			 AnSwerInfo info = new AnSwerInfo();
+				info.setQuestionId(iter1.next());// 试题主键
+				info.setQuestionName(iter2.next());// 试题题目
+				info.setQuestionType("0");// 试题类型0单选1多选
+				info.setQuestionFor("0");// （0模拟试题，1竞赛试题）
+				info.setAnalysis(" ");// 试题分析
+				info.setCorrectAnswer(" ");// 正确答案
+				info.setOptionA(iter3.next());// 试题选项A
+				info.setOptionB(iter4.next());// 试题选项B
+				info.setOptionC(iter5.next());// 试题选项C
+				info.setOptionD(iter6.next());// 试题选项D
+				info.setOptionE("");// 试题选项E
+				info.setScore(" ");// 分值
+				info.setOption_type("0");
+				dataItems.add(info);
+				i++;
+	        }  
+		 
+		 
+		 
 
-
-		for (int i = 0; i < dataItems.size(); i++) {
+		for (int j = 0; j < dataItems.size(); j++) {
 			viewItems.add(getLayoutInflater().inflate(
 					R.layout.vote_submit_viewpager_item, null));
 		}
