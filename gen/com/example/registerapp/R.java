@@ -77,15 +77,14 @@ public final class R {
         public static final int vote_submit_finish=0x7f020015;
     }
     public static final class id {
-        public static final int action_settings=0x7f09003f;
-        public static final int activity_prepare_test_errorLayout=0x7f090039;
+        public static final int action_settings=0x7f09003c;
         public static final int activity_prepare_test_explaindetail=0x7f090032;
         public static final int activity_prepare_test_layout_a=0x7f09001d;
         public static final int activity_prepare_test_layout_b=0x7f090021;
         public static final int activity_prepare_test_layout_c=0x7f090025;
         public static final int activity_prepare_test_layout_d=0x7f090029;
         public static final int activity_prepare_test_layout_e=0x7f09002d;
-        public static final int activity_prepare_test_nextLayout=0x7f09003c;
+        public static final int activity_prepare_test_nextLayout=0x7f090039;
         public static final int activity_prepare_test_no=0x7f09001a;
         public static final int activity_prepare_test_question=0x7f09001b;
         public static final int activity_prepare_test_radioBtnLayout=0x7f09001c;
@@ -108,10 +107,8 @@ public final class R {
         public static final int header=0x7f090004;
         public static final int left=0x7f090010;
         public static final int listview=0x7f090019;
-        public static final int menu_bottom_errorIV=0x7f09003a;
-        public static final int menu_bottom_errorTV=0x7f09003b;
-        public static final int menu_bottom_nextIV=0x7f09003d;
-        public static final int menu_bottom_nextTV=0x7f09003e;
+        public static final int menu_bottom_nextIV=0x7f09003a;
+        public static final int menu_bottom_nextTV=0x7f09003b;
         public static final int my_error_item_img=0x7f090033;
         public static final int my_error_item_name=0x7f090034;
         public static final int parent=0x7f090018;
