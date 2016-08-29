@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
+import android.view.Window;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
-
-import com.example.registerapp.utils.ConstantUtil;
 
 
 import android.os.StrictMode;
@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
 	
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
         etUsername = (EditText) findViewById(R.id.etUsername);
@@ -80,7 +81,6 @@ public class MainActivity extends Activity {
                     if(json.getString("responseCode").equals("success")){
                   	  
                   	Toast.makeText(MainActivity.this,"登陆成功！",Toast.LENGTH_SHORT).show();
-                  		ConstantUtil.username=username;
         				startActivity(new Intent(MainActivity.this, StartActivity.class));
         				Log.i("main","startActivity");
         			
