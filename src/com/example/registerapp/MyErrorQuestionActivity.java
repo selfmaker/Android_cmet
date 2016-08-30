@@ -26,7 +26,7 @@ import android.widget.Toast;
 /**
  * 我的错题
  * 
- * @author 金钟焕
+ * @author 
  */
 public class MyErrorQuestionActivity extends Activity {
 

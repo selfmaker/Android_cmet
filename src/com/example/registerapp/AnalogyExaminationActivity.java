@@ -207,8 +207,15 @@ public class AnalogyExaminationActivity extends Activity {
 		setContentView(R.layout.activity_practice_test);
 		dbManager = new DBManager(AnalogyExaminationActivity.this);
 		dbManager.openDB();
+		Intent intent = getIntent();
+		int position = intent.getIntExtra("position", 0);
 		initView();
-		loadData();
+		if(position!=0){
+			loadData2(position);
+		}else{
+			loadData();
+		}
+		
 		ErrorQuestionInfo[] errorQuestionInfos = dbManager.queryAllData();
 		if (errorQuestionInfos != null) {
 			// 删除上次保存的我的错题
@@ -354,6 +361,53 @@ public class AnalogyExaminationActivity extends Activity {
 				.requestDisallowInterceptTouchEvent(false);
 	}
 	
+	
+	
+private void loadData2(int position){
+		
+		 Iterator<String> iter1 = ConstantData.answerId.iterator();
+		 Iterator<String> iter2 = ConstantData.answerName.iterator();
+		 Iterator<String> iter3 = ConstantData.answerOptionA.iterator();
+		 Iterator<String> iter4 = ConstantData.answerOptionB.iterator();
+		 Iterator<String> iter5 = ConstantData.answerOptionC.iterator();
+		 Iterator<String> iter6 = ConstantData.answerOptionD.iterator();
+		
+  
+			 AnSwerInfo info = new AnSwerInfo();
+				info.setQuestionId(ConstantData.answerId.get(position));// 试题主键
+				info.setQuestionName(ConstantData.answerName.get(position));// 试题题目
+				info.setQuestionType("0");// 试题类型0单选1多选
+				info.setQuestionFor("0");// （0模拟试题，1竞赛试题）
+				info.setAnalysis(" ");// 试题分析
+				info.setCorrectAnswer(" ");// 正确答案
+				info.setOptionA(ConstantData.answerOptionA.get(position));// 试题选项A
+				info.setOptionB(ConstantData.answerOptionB.get(position));// 试题选项B
+				info.setOptionC(ConstantData.answerOptionC.get(position));// 试题选项C
+				info.setOptionD(ConstantData.answerOptionD.get(position));// 试题选项D
+				info.setOptionE("");// 试题选项E
+				info.setScore(" ");// 分值
+				info.setOption_type("0");
+				dataItems.add(info);
+			
+	       
+		 
+		 
+		 
+
+		for (int j = 0; j < dataItems.size(); j++) {
+			viewItems.add(getLayoutInflater().inflate(
+					R.layout.vote_submit_viewpager_item, null));
+		}
+		pagerAdapter = new ExaminationSubmitAdapter(
+				AnalogyExaminationActivity.this, viewItems,
+				dataItems,imgServerUrl);
+		viewPager.setAdapter(pagerAdapter);
+		viewPager.getParent()
+				.requestDisallowInterceptTouchEvent(false);
+	}
+
+
+
 	/**
      * 设置ViewPager的滑动速度
      * 

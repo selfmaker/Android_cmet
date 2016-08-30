@@ -13,6 +13,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
+import com.example.registerapp.utils.ConstantUtil;
+
 
 import android.os.StrictMode;
 import android.util.Log;
@@ -79,7 +81,7 @@ public class MainActivity extends Activity {
                     
                     Log.i("main",json.toString());
                     if(json.getString("responseCode").equals("success")){
-                  	  
+                  	  ConstantUtil.username = username;
                   	Toast.makeText(MainActivity.this,"登陆成功！",Toast.LENGTH_SHORT).show();
         				startActivity(new Intent(MainActivity.this, StartActivity.class));
         				Log.i("main","startActivity");
