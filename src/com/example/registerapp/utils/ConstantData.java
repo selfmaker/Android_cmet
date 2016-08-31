@@ -1,9 +1,13 @@
 package com.example.registerapp.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import android.R.integer;
 
 public class ConstantData {
 //	static Set<String> languages = new HashSet<String>();
@@ -27,7 +31,8 @@ public class ConstantData {
 	public static List<String> answerAnalysis = new ArrayList<String>(); 
 	public static List<String> answerScore = new ArrayList<String>(); 
 	public static List<String> answerCorrect = new ArrayList<String>(); 
-	public static List<String> isSelect= new ArrayList<String>(); 
+//	public static List<String> isSelect= new ArrayList<String>(); 
+	public static Map<Integer,String> isSelect= new HashMap<Integer, String>();
 
 	static{
 //		answerId.add("1");

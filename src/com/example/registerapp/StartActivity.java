@@ -37,6 +37,7 @@ public class StartActivity extends Activity {
 			public void onClick(View arg0) {
 				Intent intent=new Intent(StartActivity.this,AnalogyExaminationActivity.class);
 				startActivity(intent);
+				finish();
 			}
 		});
         

@@ -2,7 +2,6 @@ package com.example.registerapp.adapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,29 +9,11 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
-import com.example.registerapp.AnalogyExaminationActivity;
-import com.example.registerapp.ItemListactivity;
-import com.example.registerapp.JSONParser;
-import com.example.registerapp.MyErrorQuestionActivity;
-import com.example.registerapp.R;
-import com.example.registerapp.R.drawable;
-import com.example.registerapp.R.id;
-import com.example.registerapp.bean.AnSwerInfo;
-import com.example.registerapp.bean.ErrorQuestionInfo;
-import com.example.registerapp.bean.SaveQuestionInfo;
-import com.example.registerapp.bean.StudentAnswer;
-import com.example.registerapp.database.DBManager;
-import com.example.registerapp.utils.ConstantData;
-import com.example.registerapp.utils.ConstantUtil;
-
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.StrictMode;
 import android.support.v4.view.PagerAdapter;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
@@ -43,7 +24,21 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ExaminationSubmitAdapter extends PagerAdapter {
+import com.example.registerapp.AnalogyExaminationActivity;
+import com.example.registerapp.ItemListactivity;
+import com.example.registerapp.JSONParser;
+import com.example.registerapp.R;
+
+import com.example.registerapp.adapter.ExaminationSubmitAdapter.ViewHolder;
+import com.example.registerapp.bean.AnSwerInfo;
+import com.example.registerapp.bean.ErrorQuestionInfo;
+import com.example.registerapp.bean.SaveQuestionInfo;
+import com.example.registerapp.bean.StudentAnswer;
+import com.example.registerapp.database.DBManager;
+import com.example.registerapp.utils.ConstantData;
+import com.example.registerapp.utils.ConstantUtil;
+
+public class ItemListAdapter extends PagerAdapter {
 	
 	
 	//更改记录：1. 8.26 在单选题里 每一选项都进行了如下更改
@@ -93,8 +88,6 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 	List<AnSwerInfo> dataItems;
 	
 	String imgServerUrl="";
-	
-	int itemPosition;
 
 	private Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
 	private Map<Integer, Boolean> mapClick = new HashMap<Integer, Boolean>();
@@ -120,14 +113,13 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 	String resultD="";
 	String resultE="";
 
-	public ExaminationSubmitAdapter(AnalogyExaminationActivity context, List<View> viewItems, List<AnSwerInfo> dataItems,String imgServerUrl,int position) {
+	public ItemListAdapter(AnalogyExaminationActivity context, List<View> viewItems, List<AnSwerInfo> dataItems,String imgServerUrl) {
 		mContext = context;
 		this.viewItems = viewItems;
 		this.dataItems = dataItems;
 		this.imgServerUrl = imgServerUrl;
-//		dbManager = new DBManager(context);
-//		dbManager.openDB();
-		this.itemPosition = position;
+		dbManager = new DBManager(context);
+		dbManager.openDB();
 	}
 	
 	public long getItemId(int position) {
@@ -141,13 +133,6 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 
 	@Override
 	public Object instantiateItem(ViewGroup container,final int position) {
-		
-		if (android.os.Build.VERSION.SDK_INT > 9) {
-			 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-			 StrictMode.setThreadPolicy(policy);
-			}
-		
-		
 		final ViewHolder holder = new ViewHolder();
 		convertView = viewItems.get(position);
 		holder.questionType = (TextView) convertView.findViewById(R.id.activity_prepare_test_no);
@@ -234,10 +219,10 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 			
 			holder.question.setText("(单选题)"+dataItems.get(position).getQuestionName());
 			
-			if(ConstantData.isSelect.containsKey(position)){
+			if(!ConstantData.isSelect.containsKey(position)){
 				switch (ConstantData.isSelect.get(position)) {
 				
-				case "A":
+				case "0":
 					holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
 					holder.tvA.setTextColor(Color.parseColor("#61bc31"));
 					holder.ivB.setImageResource(R.drawable.ic_practice_test_normal);
@@ -250,7 +235,7 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
 					
 					break;
-				case "B":
+				case "1":
 					holder.ivB.setImageResource(R.drawable.ic_practice_test_right);
 					holder.tvB.setTextColor(Color.parseColor("#61bc31"));
 					holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
@@ -264,7 +249,7 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					
 					break;
 					
-				case "C":
+				case "2":
 					holder.ivC.setImageResource(R.drawable.ic_practice_test_right);
 					holder.tvC.setTextColor(Color.parseColor("#61bc31"));
 					holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
@@ -279,7 +264,7 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					
 					break;
 					
-				case "D":
+				case "3":
 					holder.ivD.setImageResource(R.drawable.ic_practice_test_right);
 					holder.tvD.setTextColor(Color.parseColor("#61bc31"));
 					holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
@@ -302,24 +287,22 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 			}
 			
 			
-			
 			holder.layoutA.setOnClickListener(new OnClickListener() {
 				
 				@Override
 				public void onClick(View arg0) {
+				
+					holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
+					holder.tvA.setTextColor(Color.parseColor("#61bc31"));
+					holder.ivB.setImageResource(R.drawable.ic_practice_test_normal);
+					holder.tvB.setTextColor(Color.parseColor("#9a9a9a"));
+					holder.ivC.setImageResource(R.drawable.ic_practice_test_normal);
+					holder.tvC.setTextColor(Color.parseColor("#9a9a9a"));
+					holder.ivD.setImageResource(R.drawable.ic_practice_test_normal);
+					holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
+					holder.ivE.setImageResource(R.drawable.ic_practice_test_normal);
+					holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
 
-						holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
-						holder.tvA.setTextColor(Color.parseColor("#61bc31"));
-						holder.ivB.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvB.setTextColor(Color.parseColor("#9a9a9a"));
-						holder.ivC.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvC.setTextColor(Color.parseColor("#9a9a9a"));
-						holder.ivD.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
-						holder.ivE.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
-					
-					
 					//保存数据
 					SaveQuestionInfo questionInfo=new SaveQuestionInfo();
 					questionInfo.setQuestionId(dataItems.get(position).getQuestionId());
@@ -331,10 +314,10 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					dataItems.get(position).setIsSelect("0");
 					
 					//保存学生作答了此题的记录
-//					if(!ConstantData.isSelect.contains(position)){
+					if(!ConstantData.isSelect.containsKey(position)){
 						
-						ConstantData.isSelect.put(position,"A");
-//					}
+//						ConstantData.isSelect.add(""+position);
+					}
 
 					//保存学生作答的答案
 					stuAnswer.setQuestion_id(dataItems.get(position).getQuestionId());
@@ -373,7 +356,46 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 //								if(map.containsKey(position)){
 //									return;
 //								}
-								
+								map.put(position, true);
+								if(dataItems.get(position).getCorrectAnswer().contains("B")){
+									mContext.setCurrentView(position+1);
+									holder.ivB.setImageResource(R.drawable.ic_practice_test_right);
+									holder.tvB.setTextColor(Color.parseColor("#61bc31"));
+									isCorrect=ConstantUtil.isCorrect;
+								}else{
+									isCorrect=ConstantUtil.isError;
+									errortopicNum+=1;
+									//自动添加错误题目
+									ErrorQuestionInfo errorQuestionInfo=new ErrorQuestionInfo();
+									errorQuestionInfo.setQuestionName(dataItems.get(position).getQuestionName());
+									errorQuestionInfo.setQuestionType(dataItems.get(position).getQuestionType());
+									errorQuestionInfo.setQuestionAnswer(dataItems.get(position).getCorrectAnswer());
+									errorQuestionInfo.setIsRight(isCorrect);
+									errorQuestionInfo.setQuestionSelect("B");
+									errorQuestionInfo.setAnalysis(dataItems.get(position).getAnalysis());
+									errorQuestionInfo.setOptionType(dataItems.get(position).getOption_type());
+									if(dataItems.get(position).getOption_type().equals("0")){
+										errorQuestionInfo.setOptionA(dataItems.get(position).getOptionA());
+										errorQuestionInfo.setOptionB(dataItems.get(position).getOptionB());
+										errorQuestionInfo.setOptionC(dataItems.get(position).getOptionC());
+										errorQuestionInfo.setOptionD(dataItems.get(position).getOptionD());
+										errorQuestionInfo.setOptionE(dataItems.get(position).getOptionE());
+									}else{
+										errorQuestionInfo.setOptionA(dataItems.get(position).getOptionA().equals("")?"":imgServerUrl+dataItems.get(position).getOptionA());
+										errorQuestionInfo.setOptionB(dataItems.get(position).getOptionB().equals("")?"":imgServerUrl+dataItems.get(position).getOptionB());
+										errorQuestionInfo.setOptionC(dataItems.get(position).getOptionC().equals("")?"":imgServerUrl+dataItems.get(position).getOptionC());
+										errorQuestionInfo.setOptionD(dataItems.get(position).getOptionD().equals("")?"":imgServerUrl+dataItems.get(position).getOptionD());
+										errorQuestionInfo.setOptionE(dataItems.get(position).getOptionE().equals("")?"":imgServerUrl+dataItems.get(position).getOptionE());
+									}
+//									long colunm=dbManager.insertErrorQuestion(errorQuestionInfo);
+//									
+//									if(colunm == -1)
+//									{
+//										Toast.makeText(mContext, "添加错误", Toast.LENGTH_SHORT).show();
+//									}
+									
+//									holder.ivB.setImageResource(R.drawable.ic_practice_test_wrong);
+//									holder.tvB.setTextColor(Color.parseColor("#d53235"));
 									holder.ivB.setImageResource(R.drawable.ic_practice_test_right);
 									holder.tvB.setTextColor(Color.parseColor("#61bc31"));
 									holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
@@ -384,7 +406,27 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 									holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
 									holder.ivE.setImageResource(R.drawable.ic_practice_test_normal);
 									holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
-									
+									//提示
+//									holder.wrongLayout.setVisibility(View.VISIBLE);
+//									holder.explaindetailTv.setText(""+dataItems.get(position).getAnalysis());
+									//显示正确选项
+									if(dataItems.get(position).getCorrectAnswer().contains("A")){
+										holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
+										holder.tvA.setTextColor(Color.parseColor("#61bc31"));
+									}else if(dataItems.get(position).getCorrectAnswer().contains("B")){
+										holder.ivB.setImageResource(R.drawable.ic_practice_test_right);
+										holder.tvB.setTextColor(Color.parseColor("#61bc31"));
+									}else if(dataItems.get(position).getCorrectAnswer().contains("C")){
+										holder.ivC.setImageResource(R.drawable.ic_practice_test_right);
+										holder.tvC.setTextColor(Color.parseColor("#61bc31"));
+									}else if(dataItems.get(position).getCorrectAnswer().contains("D")){
+										holder.ivD.setImageResource(R.drawable.ic_practice_test_right);
+										holder.tvD.setTextColor(Color.parseColor("#61bc31"));
+									}else if(dataItems.get(position).getCorrectAnswer().contains("E")){
+										holder.ivE.setImageResource(R.drawable.ic_practice_test_right);
+										holder.tvE.setTextColor(Color.parseColor("#61bc31"));
+									}
+								}
 								//保存数据
 								SaveQuestionInfo questionInfo=new SaveQuestionInfo();
 								questionInfo.setQuestionId(dataItems.get(position).getQuestionId());
@@ -397,7 +439,11 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 								
 								
 								//保存学生作答了此题的记录
-								ConstantData.isSelect.put(position,"B");
+								if(!ConstantData.isSelect.containsKey(position)){
+									
+//									ConstantData.isSelect.add(""+position);
+								}
+
 								
 								
 								//保存学生作答的答案
@@ -438,7 +484,46 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 //					if(map.containsKey(position)){
 //						return;
 //					}
-					
+					map.put(position, true);
+					if(dataItems.get(position).getCorrectAnswer().contains("C")){
+						mContext.setCurrentView(position+1);
+						holder.ivC.setImageResource(R.drawable.ic_practice_test_right);
+						holder.tvC.setTextColor(Color.parseColor("#61bc31"));
+						isCorrect=ConstantUtil.isCorrect;
+					}else{
+						isCorrect=ConstantUtil.isError;
+						errortopicNum+=1;
+						//自动添加错误题目
+						ErrorQuestionInfo errorQuestionInfo=new ErrorQuestionInfo();
+						errorQuestionInfo.setQuestionName(dataItems.get(position).getQuestionName());
+						errorQuestionInfo.setQuestionType(dataItems.get(position).getQuestionType());
+						errorQuestionInfo.setQuestionAnswer(dataItems.get(position).getCorrectAnswer());
+						errorQuestionInfo.setIsRight(isCorrect);
+						errorQuestionInfo.setQuestionSelect("C");
+						errorQuestionInfo.setAnalysis(dataItems.get(position).getAnalysis());
+						errorQuestionInfo.setOptionType(dataItems.get(position).getOption_type());
+						if(dataItems.get(position).getOption_type().equals("0")){
+							errorQuestionInfo.setOptionA(dataItems.get(position).getOptionA());
+							errorQuestionInfo.setOptionB(dataItems.get(position).getOptionB());
+							errorQuestionInfo.setOptionC(dataItems.get(position).getOptionC());
+							errorQuestionInfo.setOptionD(dataItems.get(position).getOptionD());
+							errorQuestionInfo.setOptionE(dataItems.get(position).getOptionE());
+						}else{
+							errorQuestionInfo.setOptionA(dataItems.get(position).getOptionA().equals("")?"":imgServerUrl+dataItems.get(position).getOptionA());
+							errorQuestionInfo.setOptionB(dataItems.get(position).getOptionB().equals("")?"":imgServerUrl+dataItems.get(position).getOptionB());
+							errorQuestionInfo.setOptionC(dataItems.get(position).getOptionC().equals("")?"":imgServerUrl+dataItems.get(position).getOptionC());
+							errorQuestionInfo.setOptionD(dataItems.get(position).getOptionD().equals("")?"":imgServerUrl+dataItems.get(position).getOptionD());
+							errorQuestionInfo.setOptionE(dataItems.get(position).getOptionE().equals("")?"":imgServerUrl+dataItems.get(position).getOptionE());
+						}
+//						long colunm=dbManager.insertErrorQuestion(errorQuestionInfo);
+//						
+//						if(colunm == -1)
+//						{
+//							Toast.makeText(mContext, "添加错误", Toast.LENGTH_SHORT).show();
+//						}
+						
+//						holder.ivC.setImageResource(R.drawable.ic_practice_test_wrong);
+//						holder.tvC.setTextColor(Color.parseColor("#d53235"));
 						holder.ivC.setImageResource(R.drawable.ic_practice_test_right);
 						holder.tvC.setTextColor(Color.parseColor("#61bc31"));
 						holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
@@ -450,7 +535,27 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 						holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
 						holder.ivE.setImageResource(R.drawable.ic_practice_test_normal);
 						holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
-						
+						//提示
+//						holder.wrongLayout.setVisibility(View.VISIBLE);
+//						holder.explaindetailTv.setText(""+dataItems.get(position).getAnalysis());
+						//显示正确选项
+						if(dataItems.get(position).getCorrectAnswer().contains("A")){
+							holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvA.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("B")){
+							holder.ivB.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvB.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("C")){
+							holder.ivC.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvC.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("D")){
+							holder.ivD.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvD.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("E")){
+							holder.ivE.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvE.setTextColor(Color.parseColor("#61bc31"));
+						}
+					}
 					//保存数据
 					SaveQuestionInfo questionInfo=new SaveQuestionInfo();
 					questionInfo.setQuestionId(dataItems.get(position).getQuestionId());
@@ -463,7 +568,10 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					
 					
 					//保存学生作答了此题的记录
-					ConstantData.isSelect.put(position,"C");
+					if(!ConstantData.isSelect.containsKey(position)){
+						
+//						ConstantData.isSelect.add(""+position);
+					}
 
 					
 					
@@ -502,7 +610,49 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 				
 				@Override
 				public void onClick(View arg0) {
-
+//					if(map.containsKey(position)){
+//						return;
+//					}
+					map.put(position, true);
+					if(dataItems.get(position).getCorrectAnswer().contains("D")){
+						mContext.setCurrentView(position+1);
+						holder.ivD.setImageResource(R.drawable.ic_practice_test_right);
+						holder.tvD.setTextColor(Color.parseColor("#61bc31"));
+						isCorrect=ConstantUtil.isCorrect;
+					}else{
+						isCorrect=ConstantUtil.isError;
+						errortopicNum+=1;
+						//自动添加错误题目
+						ErrorQuestionInfo errorQuestionInfo=new ErrorQuestionInfo();
+						errorQuestionInfo.setQuestionName(dataItems.get(position).getQuestionName());
+						errorQuestionInfo.setQuestionType(dataItems.get(position).getQuestionType());
+						errorQuestionInfo.setQuestionAnswer(dataItems.get(position).getCorrectAnswer());
+						errorQuestionInfo.setIsRight(isCorrect);
+						errorQuestionInfo.setQuestionSelect("D");
+						errorQuestionInfo.setAnalysis(dataItems.get(position).getAnalysis());
+						errorQuestionInfo.setOptionType(dataItems.get(position).getOption_type());
+						if(dataItems.get(position).getOption_type().equals("0")){
+							errorQuestionInfo.setOptionA(dataItems.get(position).getOptionA());
+							errorQuestionInfo.setOptionB(dataItems.get(position).getOptionB());
+							errorQuestionInfo.setOptionC(dataItems.get(position).getOptionC());
+							errorQuestionInfo.setOptionD(dataItems.get(position).getOptionD());
+							errorQuestionInfo.setOptionE(dataItems.get(position).getOptionE());
+						}else{
+							errorQuestionInfo.setOptionA(dataItems.get(position).getOptionA().equals("")?"":imgServerUrl+dataItems.get(position).getOptionA());
+							errorQuestionInfo.setOptionB(dataItems.get(position).getOptionB().equals("")?"":imgServerUrl+dataItems.get(position).getOptionB());
+							errorQuestionInfo.setOptionC(dataItems.get(position).getOptionC().equals("")?"":imgServerUrl+dataItems.get(position).getOptionC());
+							errorQuestionInfo.setOptionD(dataItems.get(position).getOptionD().equals("")?"":imgServerUrl+dataItems.get(position).getOptionD());
+							errorQuestionInfo.setOptionE(dataItems.get(position).getOptionE().equals("")?"":imgServerUrl+dataItems.get(position).getOptionE());
+						}
+//						long colunm=dbManager.insertErrorQuestion(errorQuestionInfo);
+//						
+//						if(colunm == -1)
+//						{
+//							Toast.makeText(mContext, "添加错误", Toast.LENGTH_SHORT).show();
+//						}
+						
+//						holder.ivD.setImageResource(R.drawable.ic_practice_test_wrong);
+//						holder.tvD.setTextColor(Color.parseColor("#d53235"));
 						holder.ivD.setImageResource(R.drawable.ic_practice_test_right);
 						holder.tvD.setTextColor(Color.parseColor("#61bc31"));
 						holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
@@ -514,7 +664,27 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 						
 						holder.ivE.setImageResource(R.drawable.ic_practice_test_normal);
 						holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
-					
+						//提示
+//						holder.wrongLayout.setVisibility(View.VISIBLE);
+//						holder.explaindetailTv.setText(""+dataItems.get(position).getAnalysis());
+						//显示正确选项
+						if(dataItems.get(position).getCorrectAnswer().contains("A")){
+							holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvA.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("B")){
+							holder.ivB.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvB.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("C")){
+							holder.ivC.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvC.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("D")){
+							holder.ivD.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvD.setTextColor(Color.parseColor("#61bc31"));
+						}else if(dataItems.get(position).getCorrectAnswer().contains("E")){
+							holder.ivE.setImageResource(R.drawable.ic_practice_test_right);
+							holder.tvE.setTextColor(Color.parseColor("#61bc31"));
+						}
+					}
 					//保存数据
 					SaveQuestionInfo questionInfo=new SaveQuestionInfo();
 					questionInfo.setQuestionId(dataItems.get(position).getQuestionId());
@@ -527,7 +697,11 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					
 					
 					//保存学生作答了此题的记录
-					ConstantData.isSelect.put(position,"D");
+					if(!ConstantData.isSelect.containsKey(position)){
+						
+//						ConstantData.isSelect.add(""+position);
+					}
+
 					
 					//保存学生作答的答案
 					stuAnswer.setQuestion_id(dataItems.get(position).getQuestionId());
@@ -561,75 +735,9 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 		              
 				}
 			});
-			holder.layoutE.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View arg0) {
-
-						holder.ivE.setImageResource(R.drawable.ic_practice_test_right);
-						holder.tvE.setTextColor(Color.parseColor("#61bc31"));
-						holder.ivA.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvA.setTextColor(Color.parseColor("#9a9a9a"));
-						holder.ivB.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvB.setTextColor(Color.parseColor("#9a9a9a"));
-						holder.ivC.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvC.setTextColor(Color.parseColor("#9a9a9a"));
-						holder.ivD.setImageResource(R.drawable.ic_practice_test_normal);
-						holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
-					
-					
-					//保存数据
-					SaveQuestionInfo questionInfo=new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(position).getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(position).getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(position).getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(position).getScore());
-					questionInfo.setIs_correct(isCorrect);
-					mContext.questionInfos.add(questionInfo);
-					dataItems.get(position).setIsSelect("0");
-					
-					
-					ConstantData.isSelect.put(position,"E");
-
-					
-					
-					//保存学生作答的答案
-					stuAnswer.setQuestion_id(dataItems.get(position).getQuestionId());
-					stuAnswer.setAnswer("5");
-					
-					
-					List<NameValuePair> params = new ArrayList<NameValuePair>();
-		              params.add(new BasicNameValuePair("username", ConstantUtil.username));
-		              params.add(new BasicNameValuePair("question_id", dataItems.get(position).getQuestionId()));
-		              params.add(new BasicNameValuePair("answer", "5"));
-		              
-		              JSONParser jsonParser = new JSONParser();
-		              
-		              try{   
-//		                  JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
-		                  String jsonstring = jsonParser.makeHttpRequest(url+dataItems.get(position).getQuestionId(),"POST", params);
-		                  JSONObject json = new JSONObject(jsonstring);
-		                  Log.i("main",json.toString());
-		                  if(json.getString("responseCode").equals("success")){
-		                	  
-		                	  //上传成功
-		                	
-		                  }
-//		                  Log.i("main",json);
-		                  Log.v("uploadsucceed", "uploadsucceed");   
-		                
-		              }catch(Exception e){   
-		                  e.printStackTrace(); 
-		              }   
-		              
-		              
-				}
-			});
 			
-			if(itemPosition!=-3)
-				mContext.setCurrentView(itemPosition);
-
 		}
+		
 		
 		ForegroundColorSpan blueSpan = new ForegroundColorSpan(Color.parseColor("#2b89e9"));
 		
@@ -651,11 +759,8 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 				// TODO Auto-generated method stub
 				Intent intent=new Intent(mContext,ItemListactivity.class);
 				mContext.startActivity(intent);
-				mContext.finish();
 			}
 		});
-		
-		
 		container.addView(viewItems.get(position));
 		return viewItems.get(position);
 	}
@@ -680,38 +785,36 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 
 		@Override
 		public void onClick(View v) {
-				if (mPosition == viewItems.size()) {
+			if (mPosition == viewItems.size()) {
+				//单选
+				if(dataItems.get(mPosition1).getQuestionType().equals("0")){
+//					if(!map.containsKey(mPosition1)){
+//						Toast.makeText(mContext, "请选择选项", Toast.LENGTH_SHORT).show();
+//						return;
+//					}
+					mContext.uploadExamination(errortopicNum);
+				}
+			} else {
+				if(mPosition ==-1){
+					Toast.makeText(mContext, "已经是第一页", Toast.LENGTH_SHORT).show();
+					return;
+				}else{
 					//单选
 					if(dataItems.get(mPosition1).getQuestionType().equals("0")){
-//						if(!map.containsKey(mPosition1)){
-//							Toast.makeText(mContext, "请选择选项", Toast.LENGTH_SHORT).show();
-//							return;
-//						}
-						mContext.uploadExamination(errortopicNum);
-					}
-				} else {
-					if(mPosition ==-1){
-						Toast.makeText(mContext, "已经是第一页", Toast.LENGTH_SHORT).show();
-						return;
-					}else{
-						//单选
-						if(dataItems.get(mPosition1).getQuestionType().equals("0")){
-//							if(mIsNext){
-//								if(!map.containsKey(mPosition1)){
-//									Toast.makeText(mContext, "请选择选项", Toast.LENGTH_SHORT).show();
-//									return;
-//								}
+//						if(mIsNext){
+//							if(!map.containsKey(mPosition1)){
+//								Toast.makeText(mContext, "请选择选项", Toast.LENGTH_SHORT).show();
+//								return;
 //							}
-							isNext = mIsNext;
-							mContext.setCurrentView(mPosition);
-						}
+//						}
+						isNext = mIsNext;
+						mContext.setCurrentView(mPosition);
 					}
 				}
+			}
 			
 		}
-		
-		
-		
+
 	}
 	
 	@Override

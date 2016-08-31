@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.example.registerapp.adapter.ExaminationSubmitAdapter;
+import com.example.registerapp.adapter.ItemListAdapter;
 import com.example.registerapp.bean.AnSwerInfo;
 import com.example.registerapp.bean.ErrorQuestionInfo;
 import com.example.registerapp.bean.SaveQuestionInfo;
@@ -61,6 +62,7 @@ public class AnalogyExaminationActivity extends Activity {
 
 	VoteSubmitViewPager viewPager;
 	ExaminationSubmitAdapter pagerAdapter;
+	ItemListAdapter pagerAdapter2;
 	List<View> viewItems = new ArrayList<View>();
 	List<AnSwerInfo> dataItems = new ArrayList<AnSwerInfo>();
 	private ProgressDialog progressDialog;
@@ -72,7 +74,7 @@ public class AnalogyExaminationActivity extends Activity {
 	private String isPerfectData = "1";// 是否完善资料0完成 1未完成
 	private String type = "0";// 0模拟 1竞赛
 	private String errorMsg="";
-	
+	private int position;
 	Dialog builderSubmit;
 
 	public List<Map<String, SaveQuestionInfo>> list = new ArrayList<Map<String, SaveQuestionInfo>>();
@@ -205,22 +207,18 @@ public class AnalogyExaminationActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_practice_test);
-		dbManager = new DBManager(AnalogyExaminationActivity.this);
-		dbManager.openDB();
+//		dbManager = new DBManager(AnalogyExaminationActivity.this);
+//		dbManager.openDB();
 		Intent intent = getIntent();
-		int position = intent.getIntExtra("position", 0);
+		position = intent.getIntExtra("position", -3);
 		initView();
-		if(position!=0){
-			loadData2(position);
-		}else{
-			loadData();
-		}
+		loadData();
 		
-		ErrorQuestionInfo[] errorQuestionInfos = dbManager.queryAllData();
-		if (errorQuestionInfos != null) {
-			// 删除上次保存的我的错题
-			int colunm = (int) dbManager.deleteAllData();
-		}
+//		ErrorQuestionInfo[] errorQuestionInfos = dbManager.queryAllData();
+//		if (errorQuestionInfos != null) {
+//			// 删除上次保存的我的错题
+//			int colunm = (int) dbManager.deleteAllData();
+//		}
 
 
 	}
@@ -351,11 +349,20 @@ public class AnalogyExaminationActivity extends Activity {
 
 		for (int j = 0; j < dataItems.size(); j++) {
 			viewItems.add(getLayoutInflater().inflate(
-					R.layout.vote_submit_viewpager_item, null));
+					R.layout.vote_submit_viewpager_item, null,false));
 		}
-		pagerAdapter = new ExaminationSubmitAdapter(
-				AnalogyExaminationActivity.this, viewItems,
-				dataItems,imgServerUrl);
+		
+		if(position!=-3){
+			pagerAdapter = new ExaminationSubmitAdapter(
+					AnalogyExaminationActivity.this, viewItems,
+					dataItems,imgServerUrl,position);
+		}else{
+			pagerAdapter = new ExaminationSubmitAdapter(
+					AnalogyExaminationActivity.this, viewItems,
+					dataItems,imgServerUrl,-3);
+		}
+		
+		
 		viewPager.setAdapter(pagerAdapter);
 		viewPager.getParent()
 				.requestDisallowInterceptTouchEvent(false);
@@ -396,12 +403,12 @@ private void loadData2(int position){
 
 		for (int j = 0; j < dataItems.size(); j++) {
 			viewItems.add(getLayoutInflater().inflate(
-					R.layout.vote_submit_viewpager_item, null));
+					R.layout.vote_submit_viewpager_item, null,false));
 		}
-		pagerAdapter = new ExaminationSubmitAdapter(
+		pagerAdapter2 = new ItemListAdapter(
 				AnalogyExaminationActivity.this, viewItems,
 				dataItems,imgServerUrl);
-		viewPager.setAdapter(pagerAdapter);
+		viewPager.setAdapter(pagerAdapter2);
 		viewPager.getParent()
 				.requestDisallowInterceptTouchEvent(false);
 	}

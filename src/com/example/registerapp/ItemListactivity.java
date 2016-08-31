@@ -89,6 +89,7 @@ public class ItemListactivity extends Activity {
 //				intent.putExtra("optionE", question.getOptionE());
 //				intent.putExtra("optionType", question.getOptionType());
 				startActivity(intent);
+				finish();
 			}
 		});
 		
@@ -133,7 +134,7 @@ public class ItemListactivity extends Activity {
 				 Iterator<String> iter4 = ConstantData.answerOptionB.iterator();
 				 Iterator<String> iter5 = ConstantData.answerOptionC.iterator();
 				 Iterator<String> iter6 = ConstantData.answerOptionD.iterator();
-				 Iterator<String> iter7 = ConstantData.isSelect.iterator();
+//				 Iterator<String> iter7 = ConstantData.isSelect.iterator();
 				 int i = 0;
 				 Map<String, Object> map = null;
 				 while(iter1.hasNext()&&iter2.hasNext()&&iter3.hasNext()&&iter4.hasNext()&&iter5.hasNext()&&iter6.hasNext()){  
