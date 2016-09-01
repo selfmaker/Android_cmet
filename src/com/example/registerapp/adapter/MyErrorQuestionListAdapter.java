@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.registerapp.R;
+import com.example.registerapp.utils.ConstantData;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +54,11 @@ public class MyErrorQuestionListAdapter extends BaseAdapter {
 		if (map != null && map.size() > 0) {
 
 			viewHolder.title.setText(position+1+"."+map.get("title").toString());
+			if(ConstantData.isSelect.containsKey(position)){
+				viewHolder.title.setTextColor(Color.parseColor("#61bc31"));
+			}else{
+				viewHolder.title.setTextColor(Color.parseColor("#9a9a9a"));
+			}
 			
 		}
 

@@ -75,7 +75,7 @@ public class AnalogyExaminationActivity extends Activity {
 	private String type = "0";// 0模拟 1竞赛
 	private String errorMsg="";
 	private int position;
-	Dialog builderSubmit;
+	public static Dialog builderSubmit;
 
 	public List<Map<String, SaveQuestionInfo>> list = new ArrayList<Map<String, SaveQuestionInfo>>();
 	public Map<String, SaveQuestionInfo> map2 = new HashMap<String, SaveQuestionInfo>();
@@ -210,7 +210,7 @@ public class AnalogyExaminationActivity extends Activity {
 //		dbManager = new DBManager(AnalogyExaminationActivity.this);
 //		dbManager.openDB();
 		Intent intent = getIntent();
-		position = intent.getIntExtra("position", -3);
+		position = intent.getIntExtra("position", -10000);
 		initView();
 		loadData();
 		
@@ -352,14 +352,16 @@ public class AnalogyExaminationActivity extends Activity {
 					R.layout.vote_submit_viewpager_item, null,false));
 		}
 		
-		if(position!=-3){
+		//点击试题列表item传进来
+		if(position!=-10000){
 			pagerAdapter = new ExaminationSubmitAdapter(
 					AnalogyExaminationActivity.this, viewItems,
 					dataItems,imgServerUrl,position);
 		}else{
+			//不是点击试题列表item传进来
 			pagerAdapter = new ExaminationSubmitAdapter(
 					AnalogyExaminationActivity.this, viewItems,
-					dataItems,imgServerUrl,-3);
+					dataItems,imgServerUrl,-10000);
 		}
 		
 		
@@ -620,7 +622,7 @@ private void loadData2(int position){
 	
 	
 	// 弹出对话框通知用户提交成功
-	protected void showSubmitDialog() {
+	public void showSubmitDialog() {
 		builderSubmit = new Dialog(this, R.style.dialog);
 		builderSubmit.setContentView(R.layout.my_dialog);
 		TextView title = (TextView) builderSubmit.findViewById(R.id.dialog_title);
