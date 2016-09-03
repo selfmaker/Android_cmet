@@ -17,6 +17,7 @@ import com.example.registerapp.MyErrorQuestionActivity;
 import com.example.registerapp.R;
 import com.example.registerapp.R.drawable;
 import com.example.registerapp.R.id;
+import com.example.registerapp.SubmitSucessActivity;
 import com.example.registerapp.bean.AnSwerInfo;
 import com.example.registerapp.bean.ErrorQuestionInfo;
 import com.example.registerapp.bean.SaveQuestionInfo;
@@ -79,6 +80,7 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 	StudentAnswer stuAnswer = new StudentAnswer();
 	private String url = "http://202.38.70.138/cmetTest/compete.php?username="
 			+ ConstantUtil.username + "&question_id=";
+	private String url2 = "http://202.38.70.138/cmetTest/doUserAction.php?act=completeTest";
 
 	AnalogyExaminationActivity mContext;
 	// 传递过来的页面view的集合
@@ -802,20 +804,36 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					// return;
 					// }
 					// mContext.uploadExamination(errortopicNum);
-					mContext.showSubmitDialog();
+					if(ConstantData.isSelect.size()!=ConstantData.answerId.size()){
+						Toast.makeText(mContext, "还有题目未作答，请点击屏幕下方中间按钮查看未作答题目",Toast.LENGTH_SHORT).show();
+					}else{
+						List<NameValuePair> params = new ArrayList<NameValuePair>();
+						params.add(new BasicNameValuePair("username", ConstantUtil.username));
+			            params.add(new BasicNameValuePair("status", "完成考试"));
+			            JSONParser jsonParser = new JSONParser();
+			              try{   
+//			                  JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
+			                  String jsonstring = jsonParser.makeHttpRequest(url2,"POST", params);
+			                  JSONObject json = new JSONObject(jsonstring);
+			                  Log.i("main",json.toString());
+			                  if(json.getString("responseCode").equals("success")){
+			                	  
+			                  }
+			                
+			              }catch(Exception e){   
+			                  e.printStackTrace(); 
+			              }   
+			              
+			              
+						Toast.makeText(mContext, "提交成功",Toast.LENGTH_SHORT).show();
+						mContext.startActivity(new Intent(mContext, SubmitSucessActivity.class));
+						mContext.finish();
+					}
+//					mContext.showSubmitDialog();
 					// mContext.builderSubmit.dismiss();
-					new Thread() {
-						public void run() {
-							try {
-								sleep(3000);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-					}.start();
-					
-					mContext.finish();
+//					delay(3000);  
+//					
+//					mContext.finish();
 				}
 			} else {
 				if (mPosition == -1) {
@@ -856,6 +874,16 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 		return arg0 == arg1;
 	}
 
+	private void delay(int ms){  
+        try {  
+            Thread.currentThread();  
+            Thread.sleep(ms);  
+        } catch (InterruptedException e) {  
+            e.printStackTrace();  
+        }   
+     } 
+	
+	
 	// 错题数
 	public int errorTopicNum() {
 		if (errortopicNum != 0) {

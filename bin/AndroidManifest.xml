@@ -28,6 +28,7 @@
         <activity android:name=".UserAreaActivity"></activity>
         <activity android:name=".StartActivity"></activity>
         <activity android:name=".ItemListactivity"></activity>
+        <activity android:name=".SubmitSucessActivity"></activity>
         
         <activity
             android:name=".AnalogyExaminationActivity"
