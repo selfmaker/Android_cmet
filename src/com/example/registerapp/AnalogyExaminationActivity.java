@@ -23,6 +23,8 @@ import com.example.registerapp.bean.SaveQuestionInfo;
 import com.example.registerapp.database.DBManager;
 import com.example.registerapp.utils.ConstantData;
 import com.example.registerapp.utils.ConstantUtil;
+import com.example.registerapp.utils.HttpCallbackListener;
+import com.example.registerapp.utils.HttpUtils;
 import com.example.registerapp.utils.ViewPagerScroller;
 import com.example.registerapp.view.VoteSubmitViewPager;
 
@@ -253,12 +255,9 @@ public class AnalogyExaminationActivity extends Activity {
 	}
 	
 	private void loadData(){
-		
-		Log.i("main","loadData");
+
 		 JSONParser jsonParser2 = new JSONParser();
 		 List<NameValuePair> params=new ArrayList<NameValuePair>();
-		 params.add(new BasicNameValuePair("email", "112@qq.com"));  
-//         JSONObject json2 = jsonParser2.makeHttpRequest(url,"POST", params);
 		 String jsonstring = jsonParser2.makeHttpRequest(url,"POST", params);
          JSONObject json2 = null;
 		try {
@@ -271,15 +270,7 @@ public class AnalogyExaminationActivity extends Activity {
 		 JSONArray jsonlist=new JSONArray();
 		 try {
 			jsonlist = json2.getJSONArray("json");
-//			for(int i=0;i<jsonlist.length();i++){
-//				JSONObject jsonObject = jsonlist.getJSONObject(i);
-//				ConstantData.answerId[i]=Integer.toString(jsonObject.getInt("id"));
-//				ConstantData.answerName[i]=jsonObject.getString("question");
-//				ConstantData.answerOptionA[i]=jsonObject.getString("item1");
-//				ConstantData.answerOptionB[i]=jsonObject.getString("item2");
-//				ConstantData.answerOptionC[i]=jsonObject.getString("item3");
-//				ConstantData.answerOptionD[i]=jsonObject.getString("item4");
-//			}
+
 			for(int i=0;i<jsonlist.length();i++){
 				JSONObject jsonObject = jsonlist.getJSONObject(i);
 				
@@ -298,25 +289,6 @@ public class AnalogyExaminationActivity extends Activity {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		  
-         
-//		for (int i = 0; i < ConstantData.answerName.length; i++) {
-//			AnSwerInfo info = new AnSwerInfo();
-//			info.setQuestionId(ConstantData.answerId[i]);// 试题主键
-//			info.setQuestionName(ConstantData.answerName[i]);// 试题题目
-//			info.setQuestionType(ConstantData.answerType[i]);// 试题类型0单选1多选
-//			info.setQuestionFor("0");// （0模拟试题，1竞赛试题）
-//			info.setAnalysis(ConstantData.answerAnalysis[i]);// 试题分析
-//			info.setCorrectAnswer(ConstantData.answerCorrect[i]);// 正确答案
-//			info.setOptionA(ConstantData.answerOptionA[i]);// 试题选项A
-//			info.setOptionB(ConstantData.answerOptionB[i]);// 试题选项B
-//			info.setOptionC(ConstantData.answerOptionC[i]);// 试题选项C
-//			info.setOptionD(ConstantData.answerOptionD[i]);// 试题选项D
-//			info.setOptionE(ConstantData.answerOptionE[i]);// 试题选项E
-//			info.setScore(ConstantData.answerScore[i]);// 分值
-//			info.setOption_type("0");
-//			dataItems.add(info);
-//		}
 		 
 		 Iterator<String> iter1 = ConstantData.answerId.iterator();
 		 Iterator<String> iter2 = ConstantData.answerName.iterator();
@@ -326,7 +298,7 @@ public class AnalogyExaminationActivity extends Activity {
 		 Iterator<String> iter6 = ConstantData.answerOptionD.iterator();
 		 int i = 0;
 		 while(iter1.hasNext()&&iter2.hasNext()&&iter4.hasNext()&&iter4.hasNext()&&iter5.hasNext()&&iter6.hasNext()){  
-			 AnSwerInfo info = new AnSwerInfo();
+			    AnSwerInfo info = new AnSwerInfo();
 				info.setQuestionId(iter1.next());// 试题主键
 				info.setQuestionName(iter2.next());// 试题题目
 				info.setQuestionType("0");// 试题类型0单选1多选
@@ -371,51 +343,6 @@ public class AnalogyExaminationActivity extends Activity {
 	}
 	
 	
-	
-private void loadData2(int position){
-		
-		 Iterator<String> iter1 = ConstantData.answerId.iterator();
-		 Iterator<String> iter2 = ConstantData.answerName.iterator();
-		 Iterator<String> iter3 = ConstantData.answerOptionA.iterator();
-		 Iterator<String> iter4 = ConstantData.answerOptionB.iterator();
-		 Iterator<String> iter5 = ConstantData.answerOptionC.iterator();
-		 Iterator<String> iter6 = ConstantData.answerOptionD.iterator();
-		
-  
-			 AnSwerInfo info = new AnSwerInfo();
-				info.setQuestionId(ConstantData.answerId.get(position));// 试题主键
-				info.setQuestionName(ConstantData.answerName.get(position));// 试题题目
-				info.setQuestionType("0");// 试题类型0单选1多选
-				info.setQuestionFor("0");// （0模拟试题，1竞赛试题）
-				info.setAnalysis(" ");// 试题分析
-				info.setCorrectAnswer(" ");// 正确答案
-				info.setOptionA(ConstantData.answerOptionA.get(position));// 试题选项A
-				info.setOptionB(ConstantData.answerOptionB.get(position));// 试题选项B
-				info.setOptionC(ConstantData.answerOptionC.get(position));// 试题选项C
-				info.setOptionD(ConstantData.answerOptionD.get(position));// 试题选项D
-				info.setOptionE("");// 试题选项E
-				info.setScore(" ");// 分值
-				info.setOption_type("0");
-				dataItems.add(info);
-			
-	       
-		 
-		 
-		 
-
-		for (int j = 0; j < dataItems.size(); j++) {
-			viewItems.add(getLayoutInflater().inflate(
-					R.layout.vote_submit_viewpager_item, null,false));
-		}
-		pagerAdapter2 = new ItemListAdapter(
-				AnalogyExaminationActivity.this, viewItems,
-				dataItems,imgServerUrl);
-		viewPager.setAdapter(pagerAdapter2);
-		viewPager.getParent()
-				.requestDisallowInterceptTouchEvent(false);
-	}
-
-
 
 	/**
      * 设置ViewPager的滑动速度
@@ -584,7 +511,6 @@ private void loadData2(int position){
 			public void onClick(View v) {
 				if (backtype.equals("0")){
 					builder.dismiss();
-						uploadExamination(pagerAdapter.errorTopicNum());
 				}else{
 					builder.dismiss();
 					finish();

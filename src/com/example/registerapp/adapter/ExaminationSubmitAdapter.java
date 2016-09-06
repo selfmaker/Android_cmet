@@ -25,11 +25,14 @@ import com.example.registerapp.bean.StudentAnswer;
 import com.example.registerapp.database.DBManager;
 import com.example.registerapp.utils.ConstantData;
 import com.example.registerapp.utils.ConstantUtil;
+import com.example.registerapp.utils.HttpCallbackListener;
+import com.example.registerapp.utils.HttpUtils;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.v4.view.PagerAdapter;
 import android.text.Spannable;
@@ -47,37 +50,6 @@ import android.widget.Toast;
 
 public class ExaminationSubmitAdapter extends PagerAdapter {
 
-	// 更改记录：1. 8.26 在单选题里 每一选项都进行了如下更改
-
-	// 注释掉了这些 1,2,3
-
-	// 1(原来每次只能答案只能选一次，现在可再次更改作答选项)
-	// if(map.containsKey(position)){
-	// return;
-	// }
-
-	// 2(注释掉 做错选项显示红色)
-	// holder.ivA.setImageResource(R.drawable.ic_practice_test_wrong);
-	// holder.tvA.setTextColor(Color.parseColor("#d53235"));
-
-	// 3(注释掉错题解释)
-	// holder.wrongLayout.setVisibility(View.VISIBLE);
-	// holder.explaindetailTv.setText(""+dataItems.get(position).getAnalysis());
-
-	// 增加了下面这些（单选题，选中的颜色变绿，其他则变成普通颜色）：
-	// holder.ivA.setImageResource(R.drawable.ic_practice_test_right);
-	// holder.tvA.setTextColor(Color.parseColor("#61bc31"));
-	// holder.ivB.setImageResource(R.drawable.ic_practice_test_normal);
-	// holder.tvB.setTextColor(Color.parseColor("#9a9a9a"));
-	// holder.ivC.setImageResource(R.drawable.ic_practice_test_normal);
-	// holder.tvC.setTextColor(Color.parseColor("#9a9a9a"));
-	// holder.ivD.setImageResource(R.drawable.ic_practice_test_normal);
-	// holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
-	// holder.ivE.setImageResource(R.drawable.ic_practice_test_normal);
-	// holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
-
-	// 新增一个记录学生答案的java
-	StudentAnswer stuAnswer = new StudentAnswer();
 	private String url = "http://202.38.70.138/cmetTest/compete.php?username="
 			+ ConstantUtil.username + "&question_id=";
 	private String url2 = "http://202.38.70.138/cmetTest/doUserAction.php?act=completeTest";
@@ -94,29 +66,12 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 
 	int itemPosition;
 
-	private Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
-	private Map<Integer, Boolean> mapClick = new HashMap<Integer, Boolean>();
-	private Map<Integer, String> mapMultiSelect = new HashMap<Integer, String>();
-
 	boolean isClick = false;
 
 	boolean isNext = false;
 
 	StringBuffer answer = new StringBuffer();
-	StringBuffer answerLast = new StringBuffer();
-	StringBuffer answer1 = new StringBuffer();
-
-	DBManager dbManager;
-
 	String isCorrect = ConstantUtil.isCorrect;// 1对，0错
-
-	int errortopicNum = 0;
-
-	String resultA = "";
-	String resultB = "";
-	String resultC = "";
-	String resultD = "";
-	String resultE = "";
 
 	public ExaminationSubmitAdapter(AnalogyExaminationActivity context,
 			List<View> viewItems, List<AnSwerInfo> dataItems,
@@ -125,8 +80,6 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 		this.viewItems = viewItems;
 		this.dataItems = dataItems;
 		this.imgServerUrl = imgServerUrl;
-		// dbManager = new DBManager(context);
-		// dbManager.openDB();
 		this.itemPosition = position;
 	}
 
@@ -220,16 +173,6 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 				.findViewById(R.id.vote_submit_select_image_e_);
 
 		holder.totalText.setText(position + 1 + "/" + dataItems.size());
-
-		// holder.errorBtn.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View arg0) {
-		// // TODO Auto-generated method stub
-		// Intent intent=new Intent(mContext,MyErrorQuestionActivity.class);
-		// mContext.startActivity(intent);
-		// }
-		// });
 
 		if (dataItems.get(position).getOptionA().equals("")) {
 			holder.layoutA.setVisibility(View.GONE);
@@ -380,16 +323,7 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
 
 					// 保存数据
-					SaveQuestionInfo questionInfo = new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(position)
-							.getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(position)
-							.getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(position)
-							.getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(position).getScore());
-					questionInfo.setIs_correct(isCorrect);
-					mContext.questionInfos.add(questionInfo);
+				
 					dataItems.get(position).setIsSelect("0");
 
 					// 保存学生作答了此题的记录
@@ -398,11 +332,6 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					ConstantData.isSelect.put(position, "A");
 					// }
 
-					// 保存学生作答的答案
-					stuAnswer.setQuestion_id(dataItems.get(position)
-							.getQuestionId());
-					stuAnswer.setAnswer("1");
-
 					List<NameValuePair> params = new ArrayList<NameValuePair>();
 					params.add(new BasicNameValuePair("username",
 							ConstantUtil.username));
@@ -410,27 +339,37 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.get(position).getQuestionId()));
 					params.add(new BasicNameValuePair("answer", "1"));
 
-					JSONParser jsonParser = new JSONParser();
+					HttpUtils.sendRequestWithHttpClient(url, params,
+							new HttpCallbackListener() {
 
-					try {
-						// JSONObject json =
-						// jsonParser.makeHttpRequest(url,"POST", params);
-						String jsonstring = jsonParser.makeHttpRequest(url
-								+ dataItems.get(position).getQuestionId(),
-								"POST", params);
-						JSONObject json = new JSONObject(jsonstring);
-						Log.i("main", json.toString());
-						if (json.getString("responseCode").equals("success")) {
+								// 此onFinish()方法在新开的线程里运行，故不能在此进行UI操作，应该用handle异步消息处理来进行UI更新
+								@Override
+								public void onFinsh(String response) {
+									// TODO Auto-generated method stub
+									try {
+										// JSONObject json =
+										// jsonParser.makeHttpRequest(url,"POST", params);
+										
+										JSONObject json = new JSONObject(response);
+										Log.i("main", json.toString());
+										if (json.getString("responseCode").equals("success")) {
+											// 上传成功
+										}
+										// Log.i("main",json);
+										Log.v("uploadsucceed", "uploadsucceed");
 
-							// 上传成功
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
 
-						}
-						// Log.i("main",json);
-						Log.v("uploadsucceed", "uploadsucceed");
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+								@Override
+								public void onError(Exception e) {
+									// TODO Auto-generated method stub
+									e.printStackTrace();
+								}
+							});
+				
 
 				}
 			});
@@ -458,27 +397,10 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.setImageResource(R.drawable.ic_practice_test_normal);
 					holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
 
-					// 保存数据
-					SaveQuestionInfo questionInfo = new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(position)
-							.getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(position)
-							.getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(position)
-							.getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(position).getScore());
-					questionInfo.setIs_correct(isCorrect);
-					mContext.questionInfos.add(questionInfo);
 					dataItems.get(position).setIsSelect("0");
 
 					// 保存学生作答了此题的记录
 					ConstantData.isSelect.put(position, "B");
-
-					// 保存学生作答的答案
-					stuAnswer.setQuestion_id(dataItems.get(position)
-							.getQuestionId());
-					stuAnswer.setAnswer("2");
-
 					List<NameValuePair> params = new ArrayList<NameValuePair>();
 					params.add(new BasicNameValuePair("username",
 							ConstantUtil.username));
@@ -486,27 +408,33 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.get(position).getQuestionId()));
 					params.add(new BasicNameValuePair("answer", "2"));
 
-					JSONParser jsonParser = new JSONParser();
+					HttpUtils.sendRequestWithHttpClient(url, params,
+							new HttpCallbackListener() {
 
-					try {
-						// JSONObject json =
-						// jsonParser.makeHttpRequest(url,"POST", params);
-						String jsonstring = jsonParser.makeHttpRequest(url
-								+ dataItems.get(position).getQuestionId(),
-								"POST", params);
-						JSONObject json = new JSONObject(jsonstring);
-						Log.i("main", json.toString());
-						if (json.getString("responseCode").equals("success")) {
+								// 此onFinish()方法在新开的线程里运行，故不能在此进行UI操作，应该用handle异步消息处理来进行UI更新
+								@Override
+								public void onFinsh(String response) {
+									// TODO Auto-generated method stub
+									try {
+										JSONObject json = new JSONObject(response);
+										Log.i("main", json.toString());
+										if (json.getString("responseCode").equals("success")) {
+											// 上传成功
+										}
+										// Log.i("main",json);
+										Log.v("uploadsucceed", "uploadsucceed");
 
-							// 上传成功
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
 
-						}
-						// Log.i("main",json);
-						Log.v("uploadsucceed", "uploadsucceed");
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+								@Override
+								public void onError(Exception e) {
+									// TODO Auto-generated method stub
+									e.printStackTrace();
+								}
+							});
 
 				}
 			});
@@ -535,27 +463,10 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.setImageResource(R.drawable.ic_practice_test_normal);
 					holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
 
-					// 保存数据
-					SaveQuestionInfo questionInfo = new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(position)
-							.getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(position)
-							.getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(position)
-							.getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(position).getScore());
-					questionInfo.setIs_correct(isCorrect);
-					mContext.questionInfos.add(questionInfo);
 					dataItems.get(position).setIsSelect("0");
 
 					// 保存学生作答了此题的记录
 					ConstantData.isSelect.put(position, "C");
-
-					// 保存学生作答的答案
-					stuAnswer.setQuestion_id(dataItems.get(position)
-							.getQuestionId());
-					stuAnswer.setAnswer("3");
-
 					List<NameValuePair> params = new ArrayList<NameValuePair>();
 					params.add(new BasicNameValuePair("username",
 							ConstantUtil.username));
@@ -563,27 +474,34 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.get(position).getQuestionId()));
 					params.add(new BasicNameValuePair("answer", "3"));
 
-					JSONParser jsonParser = new JSONParser();
+					HttpUtils.sendRequestWithHttpClient(url, params,
+							new HttpCallbackListener() {
 
-					try {
-						// JSONObject json =
-						// jsonParser.makeHttpRequest(url,"POST", params);
-						String jsonstring = jsonParser.makeHttpRequest(url
-								+ dataItems.get(position).getQuestionId(),
-								"POST", params);
-						JSONObject json = new JSONObject(jsonstring);
-						Log.i("main", json.toString());
-						if (json.getString("responseCode").equals("success")) {
+								// 此onFinish()方法在新开的线程里运行，故不能在此进行UI操作，应该用handle异步消息处理来进行UI更新
+								@Override
+								public void onFinsh(String response) {
+									// TODO Auto-generated method stub
+									try {
+										
+										JSONObject json = new JSONObject(response);
+										Log.i("main", json.toString());
+										if (json.getString("responseCode").equals("success")) {
+											// 上传成功
+										}
+										// Log.i("main",json);
+										Log.v("uploadsucceed", "uploadsucceed");
 
-							// 上传成功
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
 
-						}
-						// Log.i("main",json);
-						Log.v("uploadsucceed", "uploadsucceed");
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+								@Override
+								public void onError(Exception e) {
+									// TODO Auto-generated method stub
+									e.printStackTrace();
+								}
+							});
 
 				}
 			});
@@ -609,27 +527,10 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.setImageResource(R.drawable.ic_practice_test_normal);
 					holder.tvE.setTextColor(Color.parseColor("#9a9a9a"));
 
-					// 保存数据
-					SaveQuestionInfo questionInfo = new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(position)
-							.getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(position)
-							.getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(position)
-							.getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(position).getScore());
-					questionInfo.setIs_correct(isCorrect);
-					mContext.questionInfos.add(questionInfo);
 					dataItems.get(position).setIsSelect("0");
 
 					// 保存学生作答了此题的记录
 					ConstantData.isSelect.put(position, "D");
-
-					// 保存学生作答的答案
-					stuAnswer.setQuestion_id(dataItems.get(position)
-							.getQuestionId());
-					stuAnswer.setAnswer("4");
-
 					List<NameValuePair> params = new ArrayList<NameValuePair>();
 					params.add(new BasicNameValuePair("username",
 							ConstantUtil.username));
@@ -637,27 +538,34 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.get(position).getQuestionId()));
 					params.add(new BasicNameValuePair("answer", "4"));
 
-					JSONParser jsonParser = new JSONParser();
+					HttpUtils.sendRequestWithHttpClient(url, params,
+							new HttpCallbackListener() {
 
-					try {
-						// JSONObject json =
-						// jsonParser.makeHttpRequest(url,"POST", params);
-						String jsonstring = jsonParser.makeHttpRequest(url
-								+ dataItems.get(position).getQuestionId(),
-								"POST", params);
-						JSONObject json = new JSONObject(jsonstring);
-						Log.i("main", json.toString());
-						if (json.getString("responseCode").equals("success")) {
+								// 此onFinish()方法在新开的线程里运行，故不能在此进行UI操作，应该用handle异步消息处理来进行UI更新
+								@Override
+								public void onFinsh(String response) {
+									// TODO Auto-generated method stub
+									try {
+										
+										JSONObject json = new JSONObject(response);
+										Log.i("main", json.toString());
+										if (json.getString("responseCode").equals("success")) {
+											// 上传成功
+										}
+										// Log.i("main",json);
+										Log.v("uploadsucceed", "uploadsucceed");
 
-							// 上传成功
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
 
-						}
-						// Log.i("main",json);
-						Log.v("uploadsucceed", "uploadsucceed");
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+								@Override
+								public void onError(Exception e) {
+									// TODO Auto-generated method stub
+									e.printStackTrace();
+								}
+							});
 
 				}
 			});
@@ -681,27 +589,9 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					holder.ivD
 							.setImageResource(R.drawable.ic_practice_test_normal);
 					holder.tvD.setTextColor(Color.parseColor("#9a9a9a"));
-
-					// 保存数据
-					SaveQuestionInfo questionInfo = new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(position)
-							.getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(position)
-							.getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(position)
-							.getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(position).getScore());
-					questionInfo.setIs_correct(isCorrect);
-					mContext.questionInfos.add(questionInfo);
 					dataItems.get(position).setIsSelect("0");
 
 					ConstantData.isSelect.put(position, "E");
-
-					// 保存学生作答的答案
-					stuAnswer.setQuestion_id(dataItems.get(position)
-							.getQuestionId());
-					stuAnswer.setAnswer("5");
-
 					List<NameValuePair> params = new ArrayList<NameValuePair>();
 					params.add(new BasicNameValuePair("username",
 							ConstantUtil.username));
@@ -709,27 +599,34 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 							.get(position).getQuestionId()));
 					params.add(new BasicNameValuePair("answer", "5"));
 
-					JSONParser jsonParser = new JSONParser();
+					HttpUtils.sendRequestWithHttpClient(url, params,
+							new HttpCallbackListener() {
 
-					try {
-						// JSONObject json =
-						// jsonParser.makeHttpRequest(url,"POST", params);
-						String jsonstring = jsonParser.makeHttpRequest(url
-								+ dataItems.get(position).getQuestionId(),
-								"POST", params);
-						JSONObject json = new JSONObject(jsonstring);
-						Log.i("main", json.toString());
-						if (json.getString("responseCode").equals("success")) {
+								// 此onFinish()方法在新开的线程里运行，故不能在此进行UI操作，应该用handle异步消息处理来进行UI更新
+								@Override
+								public void onFinsh(String response) {
+									// TODO Auto-generated method stub
+									try {
+										
+										JSONObject json = new JSONObject(response);
+										Log.i("main", json.toString());
+										if (json.getString("responseCode").equals("success")) {
+											// 上传成功
+										}
+										// Log.i("main",json);
+										Log.v("uploadsucceed", "uploadsucceed");
 
-							// 上传成功
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
 
-						}
-						// Log.i("main",json);
-						Log.v("uploadsucceed", "uploadsucceed");
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+								@Override
+								public void onError(Exception e) {
+									// TODO Auto-generated method stub
+									e.printStackTrace();
+								}
+							});
 
 				}
 			});
@@ -804,36 +701,43 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 					// return;
 					// }
 					// mContext.uploadExamination(errortopicNum);
-					if(ConstantData.isSelect.size()!=ConstantData.answerId.size()){
-						Toast.makeText(mContext, "还有题目未作答，请点击屏幕下方中间按钮查看未作答题目",Toast.LENGTH_SHORT).show();
-					}else{
+					if (ConstantData.isSelect.size() != ConstantData.answerId
+							.size()) {
+						Toast.makeText(mContext, "还有题目未作答，请点击屏幕下方中间按钮查看未作答题目",
+								Toast.LENGTH_SHORT).show();
+					} else {
 						List<NameValuePair> params = new ArrayList<NameValuePair>();
-						params.add(new BasicNameValuePair("username", ConstantUtil.username));
-			            params.add(new BasicNameValuePair("status", "完成考试"));
-			            JSONParser jsonParser = new JSONParser();
-			              try{   
-//			                  JSONObject json = jsonParser.makeHttpRequest(url,"POST", params);
-			                  String jsonstring = jsonParser.makeHttpRequest(url2,"POST", params);
-			                  JSONObject json = new JSONObject(jsonstring);
-			                  Log.i("main",json.toString());
-			                  if(json.getString("responseCode").equals("success")){
-			                	  
-			                  }
-			                
-			              }catch(Exception e){   
-			                  e.printStackTrace(); 
-			              }   
-			              
-			              
-						Toast.makeText(mContext, "提交成功",Toast.LENGTH_SHORT).show();
-						mContext.startActivity(new Intent(mContext, SubmitSucessActivity.class));
+						params.add(new BasicNameValuePair("username",
+								ConstantUtil.username));
+						params.add(new BasicNameValuePair("status", "完成考试"));
+						JSONParser jsonParser = new JSONParser();
+						try {
+							// JSONObject json =
+							// jsonParser.makeHttpRequest(url,"POST", params);
+							String jsonstring = jsonParser.makeHttpRequest(
+									url2, "POST", params);
+							JSONObject json = new JSONObject(jsonstring);
+							Log.i("main", json.toString());
+							if (json.getString("responseCode")
+									.equals("success")) {
+
+							}
+
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						Toast.makeText(mContext, "提交成功", Toast.LENGTH_SHORT)
+								.show();
+						mContext.startActivity(new Intent(mContext,
+								SubmitSucessActivity.class));
 						mContext.finish();
 					}
-//					mContext.showSubmitDialog();
+					// mContext.showSubmitDialog();
 					// mContext.builderSubmit.dismiss();
-//					delay(3000);  
-//					
-//					mContext.finish();
+					// delay(3000);
+					//
+					// mContext.finish();
 				}
 			} else {
 				if (mPosition == -1) {
@@ -874,22 +778,13 @@ public class ExaminationSubmitAdapter extends PagerAdapter {
 		return arg0 == arg1;
 	}
 
-	private void delay(int ms){  
-        try {  
-            Thread.currentThread();  
-            Thread.sleep(ms);  
-        } catch (InterruptedException e) {  
-            e.printStackTrace();  
-        }   
-     } 
-	
-	
-	// 错题数
-	public int errorTopicNum() {
-		if (errortopicNum != 0) {
-			return errortopicNum;
+	private void delay(int ms) {
+		try {
+			Thread.currentThread();
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		return 0;
 	}
 
 	public class ViewHolder {
