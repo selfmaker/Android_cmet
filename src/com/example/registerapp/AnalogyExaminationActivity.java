@@ -10,7 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,13 +18,11 @@ import org.json.JSONObject;
 import com.example.registerapp.adapter.ExaminationSubmitAdapter;
 import com.example.registerapp.adapter.ItemListAdapter;
 import com.example.registerapp.bean.AnSwerInfo;
-import com.example.registerapp.bean.ErrorQuestionInfo;
+
 import com.example.registerapp.bean.SaveQuestionInfo;
 import com.example.registerapp.database.DBManager;
 import com.example.registerapp.utils.ConstantData;
-import com.example.registerapp.utils.ConstantUtil;
-import com.example.registerapp.utils.HttpCallbackListener;
-import com.example.registerapp.utils.HttpUtils;
+
 import com.example.registerapp.utils.ViewPagerScroller;
 import com.example.registerapp.view.VoteSubmitViewPager;
 
@@ -67,14 +65,6 @@ public class AnalogyExaminationActivity extends Activity {
 	ItemListAdapter pagerAdapter2;
 	List<View> viewItems = new ArrayList<View>();
 	List<AnSwerInfo> dataItems = new ArrayList<AnSwerInfo>();
-	private ProgressDialog progressDialog;
-
-	private String pageCode;
-	private int pageScore;
-	private int errortopicNums;// 错题数
-	private int errortopicNums1;// 错题数
-	private String isPerfectData = "1";// 是否完善资料0完成 1未完成
-	private String type = "0";// 0模拟 1竞赛
 	private String errorMsg="";
 	private int position;
 	public static Dialog builderSubmit;
@@ -82,21 +72,15 @@ public class AnalogyExaminationActivity extends Activity {
 	public List<Map<String, SaveQuestionInfo>> list = new ArrayList<Map<String, SaveQuestionInfo>>();
 	public Map<String, SaveQuestionInfo> map2 = new HashMap<String, SaveQuestionInfo>();
 	public List<SaveQuestionInfo> questionInfos = new ArrayList<SaveQuestionInfo>();
-
 	Timer timer;
 	TimerTask timerTask;
 	int minute = 2;
 	int second = 0;
-
 	boolean isPause = false;
 	int isFirst;
-
 	DBManager dbManager;
-
 	String dateStr = "";
 	String imgServerUrl = "";
-	
-	private boolean isUpload= false;
 	
 	
 	private Handler handlerSubmit = new Handler(){
@@ -384,96 +368,7 @@ public class AnalogyExaminationActivity extends Activity {
 	// 提交试卷
 	public void uploadExamination(int errortopicNum) {
 		// TODO Auto-generated method stub
-		String resultlist = "[";
-		errortopicNums = errortopicNum;
-		
-		if(questionInfos.size()>0){
-			//选择过题目
-			//全部选中
-			if(questionInfos.size()==dataItems.size()){
-				for (int i = 0; i < questionInfos.size(); i++) {
-					if (i == questionInfos.size() - 1) {
-						resultlist += questionInfos.get(i).toString() + "]";
-					} else {
-						resultlist += questionInfos.get(i).toString() + ",";
-					}
-					if (questionInfos.size() == 0) {
-						resultlist += "]";
-					}
-					if (questionInfos.get(i).getIs_correct()
-							.equals(ConstantUtil.isCorrect)) {
-						int score = Integer.parseInt(questionInfos.get(i).getScore());
-						pageScore += score;
-					}
-				}
-			}else{
-				//部分选中
-				for (int i = 0; i < dataItems.size(); i++) {
-					if(dataItems.get(i).getIsSelect()==null){
-						errortopicNums1+=1;
-						//保存数据
-						SaveQuestionInfo questionInfo=new SaveQuestionInfo();
-						questionInfo.setQuestionId(dataItems.get(i).getQuestionId());
-						questionInfo.setQuestionType(dataItems.get(i).getQuestionType());
-						questionInfo.setRealAnswer(dataItems.get(i).getCorrectAnswer());
-						questionInfo.setScore(dataItems.get(i).getScore());
-						questionInfo.setIs_correct(ConstantUtil.isError);
-						questionInfos.add(questionInfo);
-					}
-				}
-				
-				for (int i = 0; i < dataItems.size(); i++){
-					if (i == dataItems.size() - 1) {
-						resultlist += questionInfos.get(i).toString() + "]";
-					} else {
-						resultlist += questionInfos.get(i).toString() + ",";
-					}
-					if (dataItems.size() == 0) {
-						resultlist += "]";
-					}
-					if (questionInfos.get(i).getIs_correct()
-							.equals(ConstantUtil.isCorrect)) {
-						int score = Integer.parseInt(questionInfos.get(i).getScore());
-						pageScore += score;
-					}
-				}
-			}
-		}else{
-			//没有选择题目
-			for (int i = 0; i < dataItems.size(); i++) {
-				if(dataItems.get(i).getIsSelect()==null){
-					errortopicNums1+=1;
-					//保存数据
-					SaveQuestionInfo questionInfo=new SaveQuestionInfo();
-					questionInfo.setQuestionId(dataItems.get(i).getQuestionId());
-					questionInfo.setQuestionType(dataItems.get(i).getQuestionType());
-					questionInfo.setRealAnswer(dataItems.get(i).getCorrectAnswer());
-					questionInfo.setScore(dataItems.get(i).getScore());
-					questionInfo.setIs_correct(ConstantUtil.isError);
-					questionInfos.add(questionInfo);
-				}
-			}
-			
-			for (int i = 0; i < dataItems.size(); i++){
-				if (i == dataItems.size() - 1) {
-					resultlist += questionInfos.get(i).toString() + "]";
-				} else {
-					resultlist += questionInfos.get(i).toString() + ",";
-				}
-				if (dataItems.size() == 0) {
-					resultlist += "]";
-				}
-				if (questionInfos.get(i).getIs_correct()
-						.equals(ConstantUtil.isCorrect)) {
-					int score = Integer.parseInt(questionInfos.get(i).getScore());
-					pageScore += score;
-				}
-			}
-		}
-		
-		System.out.println("提交的已经选择的题目数组给后台===="+resultlist);
-		
-		
+
 		Message msg = handlerSubmit.obtainMessage();
 		msg.what = 1;
 		handlerSubmit.sendMessage(msg);
